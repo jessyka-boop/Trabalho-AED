@@ -58,3 +58,132 @@ int main() {
 
     return 0;
 }
+
+// --- IMPLEMENTAÇÃO ---
+
+void limparBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
+void inicializarCasas(Casa *casas) {
+    strcpy(casas[0].nome, "GRIFINORIA"); casas[0].inicial = 'G';
+    strcpy(casas[1].nome, "LUFA-LUFA");  casas[1].inicial = 'L';
+    strcpy(casas[2].nome, "SONSERINA");  casas[2].inicial = 'S';
+    strcpy(casas[3].nome, "CORVINAL");    casas[3].inicial = 'C';
+    for(int i=0; i<4; i++) casas[i].pontuacao = 0;
+}
+
+void coletarInfoGeral(float *data, char *modalidade, char *nome_game) {
+    printf("--- CALCULADORA DE PONTOS (GAMES E RAIOS) ---\n");
+
+    printf("Data (ex: 17.11): ");
+    scanf("%f", data);
+    limparBuffer();
+
+    printf("Qual a modalidade? [R]aio ou [G]ame: ");
+    scanf("%c", modalidade);
+    limparBuffer();
+
+    *modalidade = toupper(*modalidade);
+
+    if (*modalidade == 'G') {
+        printf("Game: ");
+        scanf("%[^\n]", nome_game);
+        limparBuffer();
+    } else {
+        strcpy(nome_game, "Evento de Raio");
+    }
+}
+
+void coletarDesempenho(Casa *casas) {
+    int p1, p2, p3, p4, kibes, paralelas, extra;
+    int pontos_calc;
+
+    for (int i = 0; i < 4; i++) {
+        printf("\n--- Inserindo dados de desempenho para %s ---\n", casas[i].nome);
+
+        printf("Acertos em 1o (x75): "); scanf("%d", &p1);
+        printf("Acertos em 2o (x70): "); scanf("%d", &p2);
+        printf("Acertos em 3o (x65): "); scanf("%d", &p3);
+        printf("Acertos em 4o (x60): "); scanf("%d", &p4);
+
+        printf("Quantidade de kibes (-50): ");
+        scanf("%d", &kibes);
+
+        printf("Quantidade de paralelas (-5): ");
+        scanf("%d", &paralelas);
+
+        printf("Pontos extra: ");
+        scanf("%d", &extra);
+
+        pontos_calc = (75 * p1) + (70 * p2) + (65 * p3) + (60 * p4);
+        pontos_calc -= (kibes * 50);
+        pontos_calc -= (paralelas * 5);
+        pontos_calc += extra;
+
+        casas[i].pontuacao = pontos_calc;
+        limparBuffer();
+    }
+}
+
+void aplicarBonus(Casa *casas, char modalidade) {
+    printf("\n--- BONUS DE APLICACAO ---\n");
+    int idx1, idx2;
+
+    if (modalidade == 'R') {
+        int qtd_raios;
+        printf("Quantidade de raios aplicados: ");
+        scanf("%d", &qtd_raios);
+        limparBuffer();
+
+        printf("Qual casa aplicou o Raio?\n");
+        for(int i=0; i<4; i++) printf("%d - %s\n", i+1, casas[i].nome);
+        printf("Escolha: ");
+        scanf("%d", &idx1); idx1--;
+        limparBuffer();
+
+        if (idx1 >= 0 && idx1 < 4) {
+            int bonus = qtd_raios * 5;
+            casas[idx1].pontuacao += bonus;
+            printf("Bonus de %d pontos para %s!\n", bonus, casas[idx1].nome);
+        }
+
+    } else {
+        char opcao;
+        printf("Houve dois aplicadores? [S/N]: ");
+        scanf("%c", &opcao);
+        limparBuffer();
+
+        if (toupper(opcao) == 'S') {
+            printf("Primeira casa aplicadora:\n");
+            for(int i=0; i<4; i++) printf("%d - %s\n", i+1, casas[i].nome);
+            printf("Escolha: ");
+            scanf("%d", &idx1); idx1--;
+            limparBuffer();
+
+            printf("Segunda casa aplicadora:\n");
+            for(int i=0; i<4; i++) if(i!=idx1) printf("%d - %s\n", i+1, casas[i].nome);
+            printf("Escolha: ");
+            scanf("%d", &idx2); idx2--;
+            limparBuffer();
+
+            if (idx1 >= 0 && idx1 < 4 && idx2 >= 0 && idx2 < 4) {
+                casas[idx1].pontuacao += 25;
+                casas[idx2].pontuacao += 25;
+                printf("Bonus de 25 pontos para %s e %s!\n", casas[idx1].nome, casas[idx2].nome);
+            }
+        } else {
+            printf("Qual a casa aplicadora (unica)?\n");
+            for(int i=0; i<4; i++) printf("%d - %s\n", i+1, casas[i].nome);
+            printf("Escolha: ");
+            scanf("%d", &idx1); idx1--;
+            limparBuffer();
+
+            if (idx1 >= 0 && idx1 < 4) {
+                casas[idx1].pontuacao += 50;
+                printf("Bonus de 50 pontos para %s!\n", casas[idx1].nome);
+            }
+        }
+    }
+}
