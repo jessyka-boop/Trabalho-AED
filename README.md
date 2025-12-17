@@ -187,3 +187,71 @@ void aplicarBonus(Casa *casas, char modalidade) {
         }
     }
 }
+void ordenarPlacar(Casa *casas) {
+    Casa temp;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3 - i; j++) {
+            if (casas[j].pontuacao < casas[j+1].pontuacao) {
+                temp = casas[j];
+                casas[j] = casas[j+1];
+                casas[j+1] = temp;
+            }
+        }
+    }
+}
+
+void exibirResultados(Casa *casas, float data, char modalidade, char *nome_game) {
+    printf("\n\n----------------------------------\n");
+    printf("        RESULTADO FINAL\n");
+    printf("----------------------------------\n");
+    printf("Data: %.2f\n", data);
+
+    if (modalidade == 'G') {
+        printf("Game: %s\n", nome_game);
+    } else {
+        printf("Modalidade: RAIO\n");
+    }
+    printf("----------------------------------\n");
+
+    char *posicoes[] = {"1o", "2o", "3o", "4o"};
+    for (int i = 0; i < 4; i++) {
+        printf("%s %c: %d pontos\n", posicoes[i], casas[i].inicial, casas[i].pontuacao);
+    }
+    printf("----------------------------------\n");
+}
+
+void salvarHistorico(Casa *casas, float data, char modalidade, char *nome_game) {
+    printf("\nTentando salvar em 'historico_games_raios.txt'...\n");
+
+    // Modo "a" cria o arquivo se ele não existir
+    FILE *arq = fopen("historico_games_raios.txt", "a");
+
+    if (arq == NULL) {
+        printf("ERRO CRITICO AO CRIAR ARQUIVO!\n");
+        // O comando perror imprime o motivo exato do erro (ex: Permissão negada)
+        perror("Detalhe do erro");
+        printf("Dica: Tente executar o programa como Administrador ou mover para outra pasta.\n");
+        return;
+    }
+
+    fprintf(arq, "\n==================================\n");
+    fprintf(arq, "DATA: %.2f\n", data);
+
+    if (modalidade == 'G') {
+        fprintf(arq, "GAME: %s\n", nome_game);
+    } else {
+        fprintf(arq, "MODALIDADE: RAIO\n");
+    }
+
+    fprintf(arq, "----------------------------------\n");
+
+    char *posicoes[] = {"1o", "2o", "3o", "4o"};
+    for (int i = 0; i < 4; i++) {
+        fprintf(arq, "%s %s: %d\n", posicoes[i], casas[i].nome, casas[i].pontuacao);
+    }
+    fprintf(arq, "==================================\n");
+
+    fclose(arq);
+    printf("SUCESSO! O arquivo 'historico_games_raios.txt' foi atualizado.\n");
+    printf("Procure na mesma pasta onde esta este executavel.\n");
+}
